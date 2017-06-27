@@ -1,0 +1,26 @@
+{
+  "name": "tinder-bot",
+  "description": "A Tinder bot to automatically swipe profiles in the area.",
+  "version": "1.0.0",
+  "engines": {
+    "node": ">=6.0.0"
+  },
+  "main": "lib/app.js",
+  "scripts": {
+    "start": "nodemon src/app.js --exec babel-node --presets latest-minimal",
+    "build": "babel lib -d dist",
+    "serve": "node dist/app.js",
+    "lint": "eslint --fix src/ dd"
+  },
+  "repository": "https://github.com/iknowhtml/tinder-bot.git",
+  "author": "Aki Gao",
+  "license": "ISC",
+  "devDependencies": {
+    "babel-cli": "^6.24.1",
+    "babel-preset-latest-minimal": "^1.1.2",
+    "eslint": "^3.19.0",
+    "eslint-plugin-node": "^4.2.2",
+    "nodemon": "^1.11.0"
+  },
+  "dependencies": {}
+}
