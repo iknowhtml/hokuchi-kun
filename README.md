@@ -1,4 +1,4 @@
-# Node Template
+# Tinder Bot
 A Tinder bot to automatically swipe right on local profiles.
 
 #### To use
