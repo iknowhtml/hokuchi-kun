@@ -22,5 +22,7 @@
     "eslint-plugin-node": "^4.2.2",
     "nodemon": "^1.11.0"
   },
-  "dependencies": {}
+  "dependencies": {
+    "tinder": "^1.19.0"
+  }
 }
