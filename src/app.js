@@ -9,7 +9,11 @@ client.authorize(FB_USER_TOKEN, FB_USER_ID, () => {
   client.getRecommendations(LIMIT, (error, { results }) => {
     results.forEach(({ _id }) => {
       client.like(_id, (error, data) => {
-        console.log(data);
+        if (error) {
+          console.log(error);
+        } else {
+          console.log(data);
+        }
       });
     });
   });
