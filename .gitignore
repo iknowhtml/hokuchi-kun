@@ -2,3 +2,4 @@
 .DS_Store
 /dist
 fb_credentials.js
+fb_login_credentials.js
