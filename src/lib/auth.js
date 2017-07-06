@@ -25,10 +25,10 @@ async function authenticateCallback(callback) {
       page.setting(key, settings[key]);
     }, null);
 
-    //configures phantom to intercept console logs in browser and output it to terminal
-    await page.on('onConsoleMessage', msg => {
-      console.log(msg);
-    });
+    // //configures phantom to intercept console logs in browser and output it to terminal
+    // await page.on('onConsoleMessage', msg => {
+    //   console.log(msg);
+    // });
 
     //opens facebook auth page for tinder
     const status = await page.open(FB_AUTH_TOKEN_URL);
