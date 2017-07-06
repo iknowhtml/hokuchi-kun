@@ -7,7 +7,8 @@ const FB_AUTH_TOKEN_URL =
 const USER_AGENT =
   'Mozilla/5.0 (Linux; U; en-gb; KFTHWI Build/JDQ39) AppleWebKit/535.19 (KHTML, like Gecko) Silk/3.16 Safari/535.19';
 
-async function getAuthenticationToken() {
+async function authenticateCallback(callback) {
+  let accessToken = null;
   try {
     //create phantom instance
     const instance = await phantom.create();
@@ -43,22 +44,22 @@ async function getAuthenticationToken() {
         document.querySelector("button[name='login']").click();
       }, credentials);
 
-      setTimeout(async () => await page.evaluate(function() {
-        document.querySelector("button[name='__CONFIRM__']").click();
-      }), 2000);
-
+      setTimeout(async () => {
+        await page.evaluate(function() {
+          document.querySelector("button[name='__CONFIRM__']").click();
+        });
+      }, 2000);
 
       page.on('onUrlChanged', async targetUrl => {
         const urlRegex = /.*\/confirm$/;
         if (urlRegex.test(targetUrl)) {
-          let accessToken = await page.evaluate(function() {
+          accessToken = await page.evaluate(function() {
             const accessTokenRegex = /access_token=(.+)&/;
             return document
               .querySelector('script')
               .innerHTML.match(accessTokenRegex)[1];
           });
-          await instance.exit();
-          console.log(accessToken);
+          callback(accessToken);
         }
       });
     } else {
@@ -69,4 +70,8 @@ async function getAuthenticationToken() {
   }
 }
 
-getAuthenticationToken().then(() => {});
+authenticateCallback(accessToken => {
+  console.log(accessToken);
+});
+
+export default authenticateCallback;
