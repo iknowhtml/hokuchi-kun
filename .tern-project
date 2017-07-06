@@ -12,17 +12,17 @@
       "load": "",
       "modules": ""
     },
-    "commonjs": {},
-    "requirejs": {
-      "baseURL": "",
-      "paths": "",
-      "override": ""
-    },
     "modules": {
       "dontLoad": "",
       "load": "",
       "modules": ""
     },
-    "es_modules": {}
-  }
+    "es_modules": {},
+    "complete_strings": {
+      "maxLength": 15
+    }
+  },
+  "libs": [
+    "browser"
+  ]
 }
