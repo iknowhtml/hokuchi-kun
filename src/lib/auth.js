@@ -7,7 +7,7 @@ const FB_AUTH_TOKEN_URL =
 const USER_AGENT =
   'Mozilla/5.0 (Linux; U; en-gb; KFTHWI Build/JDQ39) AppleWebKit/535.19 (KHTML, like Gecko) Silk/3.16 Safari/535.19';
 
-async function authenticateCallback(callback) {
+async function authenticateTinderApiCall(tinderApiCall) {
   let accessToken = null;
   try {
     //create phantom instance
@@ -59,7 +59,8 @@ async function authenticateCallback(callback) {
               .querySelector('script')
               .innerHTML.match(accessTokenRegex)[1];
           });
-          callback(accessToken);
+          tinderApiCall(accessToken);
+          await instance.exit(1);
         }
       });
     } else {
@@ -70,8 +71,8 @@ async function authenticateCallback(callback) {
   }
 }
 
-authenticateCallback(accessToken => {
+authenticateTinderApiCall(accessToken => {
   console.log(accessToken);
 });
 
-export default authenticateCallback;
+export default authenticateTinderApiCall;
