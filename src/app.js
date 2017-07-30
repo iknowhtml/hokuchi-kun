@@ -1,11 +1,14 @@
 import https from 'https';
 import tinder from 'tinder';
+import moment from 'moment';
+
 import getAuthToken from './lib/get_auth_token';
 
 const LIMIT = 10;
 
 const client = new tinder.TinderClient();
 getAuthToken().then(async userToken => {
+  console.log('Retrieving user id...');
   const userId = await (() =>
     new Promise(resolve => {
       const userIdUrl =
@@ -22,24 +25,30 @@ getAuthToken().then(async userToken => {
         });
       });
     }))();
-
+  console.log('User id retrieved!');
   client.authorize(userToken, userId, () => {
-    console.log(client.isAuthorized());
-    // client.getRecommendations(LIMIT, (recomendationsError, { results }) => {
-    //   if (recomendationsError) {
-    //     console.error(recomendationsError);
-    //   } else {
-    //     console.log(results);
-    //     results.forEach(({ _id }) => {
-    //       client.like(_id, (likeError, data) => {
-    //         if (likeError) {
-    //           console.error(likeError);
-    //         } else {
-    //           console.log(data);
-    //         }
-    //       });
-    //     });
-    //   }
-    // });
+    console.log('Retrieving recommendations...');
+      client.getRecommendations(LIMIT, (recomendationsError, { results }) => {
+        if (recomendationsError) {
+          console.error(recomendationsError);
+        } else {
+          console.log('Recommendations retrieved!');
+          console.log('Liking recommendations...');
+          results.forEach(({ _id }) => {
+            client.like(_id, (likeError, data) => {
+              if (likeError) {
+                // console.error(likeError);
+                console.log(`Could not like ${_id}`);
+              } else {
+                if (data.match) {
+                  console.log(`Liked ${_id}!`);
+                } else {
+                  console.log(`Out of swipes, try again at ${moment(data.rate_limited_util).format('MMMM Do YY, h:mm:ssa')}`);
+                }
+              }
+            });
+          });
+        }
+      });
   });
 });
