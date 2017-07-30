@@ -7,8 +7,7 @@ const FB_AUTH_TOKEN_URL =
 const USER_AGENT =
   'Mozilla/5.0 (Linux; U; en-gb; KFTHWI Build/JDQ39) AppleWebKit/535.19 (KHTML, like Gecko) Silk/3.16 Safari/535.19';
 
-async function authenticateTinderApiCall(tinderApiCall) {
-  let accessToken = null;
+async function getAuthToken() {
   try {
     //create phantom instance
     const instance = await phantom.create();
@@ -25,44 +24,60 @@ async function authenticateTinderApiCall(tinderApiCall) {
       page.setting(key, settings[key]);
     }, null);
 
-    // //configures phantom to intercept console logs in browser and output it to terminal
-    // await page.on('onConsoleMessage', msg => {
-    //   console.log(msg);
-    // });
+    //configures phantom to intercept console logs in browser and output it to terminal
+    page.on('onConsoleMessage', msg => {
+      console.log(msg);
+    });
 
     //opens facebook auth page for tinder
+    console.log('Opening Facebook auth page...');
     const status = await page.open(FB_AUTH_TOKEN_URL);
 
     //checks if page was successfully opened
     if (status === 'success') {
+      console.log('Facebook auth page successfully opened!');
       //sets the values of the email and password fields with their respective values and submits the form
       await page.evaluate(function(credentials) {
+        console.log('Inputing Facebook credentials...');
         document.querySelector("input[name='email']").value =
           credentials.FB_EMAIL;
         document.querySelector("input[name='pass']").value =
           credentials.FB_PASSWORD;
+        console.log('Facebook credentials successfully inputed!');
+        console.log('Logging into Facebook...');
         document.querySelector("button[name='login']").click();
       }, credentials);
 
-      setTimeout(async () => {
-        await page.evaluate(function() {
-          document.querySelector("button[name='__CONFIRM__']").click();
-        });
-      }, 2000);
+      await (() =>
+        new Promise((resolve) => {
+          console.log('Waiting for auth page to load...');
+          setTimeout(async () => {
+            await page.evaluate(function() {
+              console.log("Page loaded!");
+              console.log('Login successful!');
+              console.log('Confirming Facebook auth...');
+              document.querySelector("button[name='__CONFIRM__']").click();
+            });
+            resolve();
+          }, 3000);
+        }))();
 
-      page.on('onUrlChanged', async targetUrl => {
-        const urlRegex = /.*\/confirm$/;
-        if (urlRegex.test(targetUrl)) {
-          accessToken = await page.evaluate(function() {
-            const accessTokenRegex = /access_token=(.+)&/;
-            return document
-              .querySelector('script')
-              .innerHTML.match(accessTokenRegex)[1];
-          });
-          tinderApiCall(accessToken);
-          await instance.exit(1);
-        }
-      });
+      const accessToken = await (() =>
+          new Promise((resolve) => {
+            console.log('Waiting for confirmation...');
+            setTimeout(async () => {
+              const token = await page.evaluate(function() {
+                  console.log('Facebook auth confirmed!');
+                  const accessTokenRegex = /access_token=(.+)&/;
+                  return document
+                    .querySelector('script')
+                    .innerHTML.match(accessTokenRegex)[1];
+              });
+              resolve(token);
+            }, 3000);
+          }))();
+
+      return accessToken;
     } else {
       console.error('Unable to open URL');
     }
@@ -71,8 +86,4 @@ async function authenticateTinderApiCall(tinderApiCall) {
   }
 }
 
-authenticateTinderApiCall(accessToken => {
-  console.log(accessToken);
-});
-
-export default authenticateTinderApiCall;
+export default getAuthToken;
