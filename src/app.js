@@ -3,6 +3,7 @@ import tinder from 'tinder';
 import moment from 'moment';
 
 import getAuthToken from './lib/get_auth_token';
+import log from './lib/log';
 
 const LIMIT = 10;
 
@@ -26,29 +27,31 @@ getAuthToken().then(async userToken => {
       });
     }))();
   console.log('User id retrieved!');
-  client.authorize(userToken, userId, () => {
-    console.log('Retrieving recommendations...');
+    client.authorize(userToken, userId, () => {
+      console.log('Retrieving recommendations...');
       client.getRecommendations(LIMIT, (recomendationsError, { results }) => {
         if (recomendationsError) {
           console.error(recomendationsError);
         } else {
           console.log('Recommendations retrieved!');
           console.log('Liking recommendations...');
-          results.forEach(({ _id }) => {
+          results.forEach(({ _id, name }) => {
             client.like(_id, (likeError, data) => {
               if (likeError) {
                 // console.error(likeError);
-                console.log(`Could not like ${_id}`);
+                console.log(`Could not like ${name} (${_id})`);
               } else {
-                if (data.match) {
-                  console.log(`Liked ${_id}!`);
+                if (data.likes_remaining) {
+                  console.log(`Liked ${name} (${_id})!`);
                 } else {
-                  console.log(`Out of swipes, try again at ${moment(data.rate_limited_util).format('MMMM Do YY, h:mm:ssa')}`);
+                  console.log(
+                    `Could not like ${name} (${_id}), out of swipes.`
+                  );
                 }
               }
             });
           });
         }
       });
-  });
+    });
 });
